@@ -26,13 +26,9 @@ export default class Home extends Component {
     }
   }
   componentDidMount = ()=>{
-    const { page } = this.state;
-    if(page == 0){
-      this.timer = setInterval(()=> this.getData(page), 1000)
-    }else{
-      this.timer = setInterval(()=> this.getData(page + 1), 1000)
-    }
-   
+    let { page } = this.state;
+      // this.timer = setInterval(()=> this.getData(page++), 10000)
+      this.getData(page)
   }
 
   getData = (page) =>{
@@ -44,7 +40,6 @@ export default class Home extends Component {
   }) 
   .then((response) => response.json())
   .then((responseJSON) => {
-    debugger
     const { listData, filteredData } = this.state;
     responseJSON.hits.forEach(element => {
       listData.push(element)
@@ -117,6 +112,8 @@ export default class Home extends Component {
   handleLoadMore = () => {
     if (!this.state.loading && this.state.loadMore) {
       const { page } = this.state;
+      // clearInterval(this.timer);
+      this.setState({loadMore: false})
       this.getData(page + 1); 
     }
   };
@@ -152,6 +149,10 @@ export default class Home extends Component {
       filteredData: this.state.listData,
       modalVisible: false
     })
+  }
+
+  componentWillUnmount() {
+    if (this.timer) clearInterval(this.timer)
   }
 
   render() {
@@ -193,7 +194,8 @@ export default class Home extends Component {
         </View>
         <FlatList
           data={filteredData}
-          extraData={this.state}
+          extraData={this.state.filteredData}
+          disableVirtualization={false}
           refreshControl={
             <RefreshControl
               refreshing={this.state.isRefreshing}
